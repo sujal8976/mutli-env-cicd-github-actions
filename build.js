@@ -2,7 +2,6 @@ const esbuild = require('esbuild');
 const fs = require('fs');
 const path = require('path');
 
-// Ensure dist directory exists
 if (!fs.existsSync('dist')) {
   fs.mkdirSync('dist', { recursive: true });
 }
