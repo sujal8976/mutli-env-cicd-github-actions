@@ -54,6 +54,7 @@ jobs:
         run: npm run build
 
   docker-build-push:
+    if: github.event_name == 'push'
     needs: build-and-test
     runs-on: ubuntu-latest
     permissions:
