@@ -54,6 +54,7 @@ jobs:
         run: npm run build
 
   docker-build-push:
+    if: github.event_name == 'push'
     needs: build-and-test
     runs-on: ubuntu-latest
     permissions:
@@ -82,12 +83,7 @@ jobs:
         with:
           images: ${{ env.BASE_IMAGE_NAME }}
           tags: |
-            type=ref,event=branch,suffix=-${{ github.ref_name }}
-            type=semver,pattern={{version}},suffix=-${{ github.ref_name }}
-            type=semver,pattern={{major}}.{{minor}},suffix=-${{ github.ref_name }}
-            type=sha,suffix=-${{ github.ref_name }}
-            type=raw,value=latest-${{ github.ref_name }},enable=${{ github.ref_name != 'main' }}
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short,prefix=${{ github.ref_name }}-
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -97,5 +93,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.BASE_IMAGE_NAME }}:cache
-          cache-to: type=inline
-          
+          cache-to: type=registry,ref=${{ env.BASE_IMAGE_NAME }}:cache,mode=max
