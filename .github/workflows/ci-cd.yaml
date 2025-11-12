@@ -21,37 +21,27 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    services:
-      mongodb:
-        image: mongo:7
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "mongosh --eval 'db.adminCommand({ping: 1})'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
+      - name: Start services with Docker Compose
+        run: docker compose up -d
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Wait for MongoDB to be ready
+        run: |
+          timeout 60 bash -c 'until docker compose exec -T mongo mongosh --eval "db.adminCommand({ping: 1})" > /dev/null 2>&1; do sleep 2; done'
 
       - name: Run tests
-        env:
-          MONGODB_URI: mongodb://localhost:27017/tm-test
-          PORT: 3000
-        run: npm run test
+        run: docker compose exec -T app npm run test
 
-      - name: Build
-        run: npm run build
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop services
+        if: always()
+        run: docker compose down -v
 
   docker-build-push:
     needs: build-and-test
@@ -81,13 +71,12 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.BASE_IMAGE_NAME }}
-          flavor: |
-            suffix=-${{ github.ref_name }},onlatest=true
           tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=ref,event=branch,suffix=-${{ github.ref_name }}
+            type=semver,pattern={{version}},suffix=-${{ github.ref_name }}
+            type=semver,pattern={{major}}.{{minor}},suffix=-${{ github.ref_name }}
+            type=sha,suffix=-${{ github.ref_name }}
+            type=raw,value=latest-${{ github.ref_name }},enable=${{ github.ref_name != 'main' }}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
