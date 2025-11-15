@@ -11,4 +11,4 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
 
-CMD [ "node", "dist/server.js"]
+CMD [ "node", "dist/index.js"]

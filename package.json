@@ -5,12 +5,12 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "node build.js",
-    "start": "node dist/server.js",
-    "dev": "ts-node src/server.ts",
-    "test": "jest --coverage",
-    "test:watch": "jest --watch",
-    "test:unit": "jest tests/unit",
-    "test:integration": "jest tests/integration"
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "NODE_ENV=testing jest --coverage",
+    "test:watch": "NODE_ENV=testing jest --watch",
+    "test:unit": "NODE_ENV=testing jest tests/unit",
+    "test:integration": "NODE_ENV=testing jest tests/integration"
   },
   "keywords": [
     "task-manager",
@@ -22,6 +22,7 @@
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mongoose": "^8.19.2"
   },
@@ -33,6 +34,7 @@
     "@types/supertest": "^6.0.3",
     "esbuild": "^0.25.12",
     "jest": "^30.2.0",
+    "mongodb-memory-server": "^10.3.0",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",

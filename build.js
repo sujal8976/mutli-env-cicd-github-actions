@@ -8,17 +8,17 @@ if (!fs.existsSync('dist')) {
 
 // Build configuration
 esbuild.build({
-  entryPoints: ['src/server.ts'],
+  entryPoints: ['src/index.ts'],
   bundle: true,
   platform: 'node',
-  target: 'node16',
-  outfile: 'dist/server.js',
+  target: 'node20',
+  outfile: 'dist/index.js',
   external: [],  // Bundle everything, no externals
   minify: true,
   sourcemap: true,
 }).then(() => {
   console.log('✅ Build completed successfully!');
-  console.log('📦 Bundled server: dist/server.js');
+  console.log('📦 Bundled server: dist/index.js');
 }).catch((error) => {
   console.error('❌ Build failed:', error);
   process.exit(1);

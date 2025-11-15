@@ -33,6 +33,26 @@
         align-items: center;
         margin-bottom: 30px;
       }
+      .env-badge {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-left: 10px;
+      }
+      .env-production {
+        background: #dc3545;
+        color: white;
+      }
+      .env-development {
+        background: #28a745;
+        color: white;
+      }
+      .env-testing {
+        background: #ffc107;
+        color: #000;
+      }
       .btn {
         padding: 10px 20px;
         background: #007bff;
@@ -139,7 +159,10 @@
     <div class="container">
       <div class="header">
         <div>
-          <h1>Task Manager</h1>
+          <h1>
+            Task Manager
+            <span id="envBadge" class="env-badge"></span>
+          </h1>
           <p>Manage your tasks efficiently</p>
         </div>
         <a href="/create" class="btn">+ New Task</a>
@@ -165,6 +188,28 @@
 
     <script>
       let tasks = [];
+
+      async function loadEnvironment() {
+        try {
+          const response = await fetch("/api/env");
+          const data = await response.json();
+          const env = data.environment;
+          const badge = document.getElementById("envBadge");
+
+          if (env === "production") {
+            badge.textContent = "PROD";
+            badge.className = "env-badge env-production";
+          } else if (env === "testing") {
+            badge.textContent = "TEST";
+            badge.className = "env-badge env-testing";
+          } else {
+            badge.textContent = "DEV";
+            badge.className = "env-badge env-development";
+          }
+        } catch (error) {
+          console.error("Failed to load environment:", error);
+        }
+      }
 
       async function loadTasks() {
         try {
@@ -243,6 +288,9 @@
       document
         .getElementById("priorityFilter")
         .addEventListener("change", renderTasks);
+
+      // Load environment and tasks on page load
+      loadEnvironment();
       loadTasks();
     </script>
   </body>
