@@ -88,20 +88,16 @@ jobs:
           username: ${{ env.REGISTRY_USERNAME }}
           password: ${{ env.REGISTRY_PASSWORD }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.BASE_IMAGE_NAME }}
-          tags: |
-            type=sha,format=short,prefix=${{ github.ref_name }}-
+      - name: Set image tag
+        id: tag
+        run: |
+          echo "tag=${github.ref_name}-${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.BASE_IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
           cache-from: type=registry,ref=${{ env.BASE_IMAGE_NAME }}:cache
           cache-to: type=registry,ref=${{ env.BASE_IMAGE_NAME }}:cache,mode=max
