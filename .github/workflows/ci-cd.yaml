@@ -71,6 +71,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      image_tag: ${{ steps.tag.output.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -103,3 +105,34 @@ jobs:
           cache-from: type=registry,ref=${{ env.BASE_IMAGE_NAME }}:cache
           cache-to: type=registry,ref=${{ env.BASE_IMAGE_NAME }}:cache,mode=max
 
+  deploy-to-ec2:
+    if: 
+    name: SSH and deploy on EC2
+    needs: docker-build-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait a few seconds
+        run: sleep 2
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_SSH_PORT || 22 }}
+          script: |
+            set -e
+            cd ~/tm-app || exit 1                              # path where docker-compose.yml lives
+            # optionally update docker-compose.yml from repo by pulling
+            # git pull origin main || true
+
+            # export tag to env so docker-compose can use it (if you use ${TAG} in file)
+            TAG=${{ needs.docker-build-push.outputs.image_tag }}
+            
+            # If your docker-compose.yml directly references the image with literal tag, you can edit it with sed.
+            # Here we'll use docker-compose pull with explicit image:tag
+            docker-compose pull || true
+            docker-compose up -d --remove-orphans
+            # optionally prune old images
+            docker image prune -f || true
