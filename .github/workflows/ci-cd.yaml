@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  REGISTRY: docker.ioREGISTRY
+  REGISTRY: docker.io
   BASE_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}
   REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   REGISTRY_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
