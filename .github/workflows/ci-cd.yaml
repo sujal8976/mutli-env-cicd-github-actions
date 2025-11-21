@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  REGISTRY: docker.io
+  REGISTRY: docker.ioREGISTRY
   BASE_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}
   REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   REGISTRY_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -91,8 +91,8 @@ jobs:
       - name: Set image tag
         id: tag
         run: |
-          echo "tag=${{ github.ref_name }}-${{ github.sha }}" >> $GITHUB_OUTPUT
-
+          TAG="${GITHUB_REF_NAME}-${GITHUB_SHA:0:8}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
