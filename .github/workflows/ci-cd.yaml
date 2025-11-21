@@ -124,11 +124,17 @@ jobs:
             # optionally update docker-compose.yml from repo by pulling
             # git pull origin main || true
 
-            # export tag to env so docker-compose can use it (if you use ${TAG} in file)
-            TAG="${GITHUB_REF_NAME}-${GITHUB_SHA:0:8}"
-            
-            # If your docker-compose.yml directly references the image with literal tag, you can edit it with sed.
-            # Here we'll use docker-compose pull with explicit image:tag
+            # runner expands github values into the script as literals
+            TAG="${{ github.ref_name }}-${{ github.sha }}"
+      
+            # split into branch and full-sha, shorten sha to 8 chars, recombine
+            BRANCH="${TAG%-*}"
+            FULLSHA="${TAG##*-}"
+            SHORT_SHA="${FULLSHA:0:8}"
+            TAG="${BRANCH}-${SHORT_SHA}"
+      
+            export TAG
+            echo "Using TAG=$TAG"
             docker-compose pull || true
             docker-compose up -d --remove-orphans
             # optionally prune old images
