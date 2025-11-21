@@ -71,8 +71,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    outputs:
-      image_tag: ${{ steps.tag.output.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -106,7 +104,6 @@ jobs:
           cache-to: type=registry,ref=${{ env.BASE_IMAGE_NAME }}:cache,mode=max
 
   deploy-to-ec2:
-    if: 
     name: SSH and deploy on EC2
     needs: docker-build-push
     runs-on: ubuntu-latest
@@ -128,7 +125,7 @@ jobs:
             # git pull origin main || true
 
             # export tag to env so docker-compose can use it (if you use ${TAG} in file)
-            TAG=${{ needs.docker-build-push.outputs.image_tag }}
+            TAG="${GITHUB_REF_NAME}-${GITHUB_SHA:0:8}"
             
             # If your docker-compose.yml directly references the image with literal tag, you can edit it with sed.
             # Here we'll use docker-compose pull with explicit image:tag
