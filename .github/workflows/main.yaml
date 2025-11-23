@@ -19,7 +19,7 @@ env:
 
 jobs:
   build-and-test:
-    uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/ci.yaml
     with:
       node-version: 22
       mongodb-uri: mongodb://localhost:27017/tm-test
@@ -28,7 +28,7 @@ jobs:
   docker-build-push:
     if: github.event_name == 'push' && (github.ref_name == 'test' || github.ref_name == 'main')
     needs: build-and-test
-    uses: ./.github/workflows/docker-build.yml
+    uses: ./.github/workflows/docker-build.yaml
     secrets: inherit
     with:
       registry: docker.io
@@ -37,7 +37,7 @@ jobs:
   deploy-to-test:
     if: github.event_name == 'push' && github.ref_name == 'test'
     needs: docker-build-push
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/deploy.yaml
     secrets: inherit
     with:
       environment: test
@@ -51,7 +51,7 @@ jobs:
   deploy-to-production:
     if: github.event_name == 'push' && github.ref_name == 'main'
     needs: docker-build-push
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/deploy.yaml
     secrets: inherit
     with:
       environment: production
