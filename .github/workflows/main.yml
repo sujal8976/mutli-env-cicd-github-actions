@@ -11,12 +11,6 @@ concurrency:
   group: ci-cd-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  REGISTRY: docker.io
-  BASE_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}
-  REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  REGISTRY_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
-
 jobs:
   build-and-test:
     uses: ./.github/workflows/ci.yml
