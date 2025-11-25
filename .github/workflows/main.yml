@@ -38,7 +38,6 @@ jobs:
     secrets: inherit
     with:
       environment: test
-      image-tag: ${{ needs.docker-build-push.outputs.image_tag }}
       host-secret: EC2_TEST_HOST
       user-secret: EC2_TEST_USER
       key-secret: EC2_TEST_SSH_KEY
@@ -52,7 +51,6 @@ jobs:
     secrets: inherit
     with:
       environment: production
-      image-tag: ${{ needs.docker-build-push.outputs.image_tag }}
       host-secret: EC2_PROD_HOST
       user-secret: EC2_PROD_USER
       key-secret: EC2_PROD_SSH_KEY

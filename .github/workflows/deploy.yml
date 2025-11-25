@@ -6,9 +6,6 @@ on:
       environment:
         required: true
         type: string
-      image-tag:
-        required: true
-        type: string
       host-secret:
         required: true
         type: string
@@ -22,7 +19,7 @@ on:
         required: false
         type: string
         default: "EC2_SSH_PORT"
-
+        
 jobs:
   deploy:
     name: Deploy to ${{ inputs.environment }}
@@ -30,7 +27,13 @@ jobs:
     steps:
       - name: Wait a few seconds
         run: sleep 2
-
+      
+      - name: Set image tag
+        id: tag
+        run: |
+          TAG="${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${GITHUB_REF_NAME}-${GITHUB_SHA:0:8}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+      
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -42,7 +45,7 @@ jobs:
           script: |
             set -e
             cd ~/tm-app || exit 1
-            export IMAGE_TAG="${{ inputs.image-tag }}"
+            export IMAGE_TAG="${{ steps.tag.outputs.tag }}"
             export ENVIRONMENT="${{ inputs.environment }}"
             echo "Deploying $ENVIRONMENT with tag: $IMAGE_TAG"
             export TAG="$IMAGE_TAG"
