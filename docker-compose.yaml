@@ -3,10 +3,9 @@ version: "3.8"
 services:
   mongo:
     image: mongo:7
+    restart: unless-stopped
     volumes:
       - mongo_data:/data/db
-    ports:
-      - "27017:27017"
     healthcheck:
       test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
       interval: 10s
@@ -17,11 +16,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: unless-stopped
     depends_on:
       - mongo
     environment:
       - MONGODB_URI=mongodb://mongo:27017/tm-test
       - PORT=3000
+      - NODE_ENV=test
     ports:
       - "3000:3000"
 

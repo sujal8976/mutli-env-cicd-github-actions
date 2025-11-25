@@ -1,0 +1,54 @@
+name: Deploy to EC2
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      host-secret:
+        required: true
+        type: string
+      user-secret:
+        required: true
+        type: string
+      key-secret:
+        required: true
+        type: string
+      port-secret:
+        required: false
+        type: string
+        default: "EC2_SSH_PORT"
+        
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait a few seconds
+        run: sleep 2
+      
+      - name: Set image tag
+        id: tag
+        run: |
+          TAG="${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${GITHUB_REF_NAME}-${GITHUB_SHA:0:8}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+      
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets[inputs.host-secret] }}
+          username: ${{ secrets[inputs.user-secret] }}
+          key: ${{ secrets[inputs.key-secret] }}
+          port: ${{ secrets[inputs.port-secret] || 22 }}
+          envs: IMAGE_TAG,ENVIRONMENT
+          script: |
+            set -e
+            cd ~/tm-app || exit 1
+            export IMAGE_TAG="${{ steps.tag.outputs.tag }}"
+            export ENVIRONMENT="${{ inputs.environment }}"
+            echo "Deploying $ENVIRONMENT with tag: $IMAGE_TAG"
+            export TAG="$IMAGE_TAG"
+            docker-compose pull || true
+            docker-compose up -d --remove-orphans
+            docker image prune -f || true
