@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import path from "path";
 import cors from "cors";
+import dotenv from 'dotenv';
 
 // Task Model
 const taskSchema = new mongoose.Schema({
@@ -27,6 +28,7 @@ export const Task = mongoose.model("Task", taskSchema);
 const app = express();
 app.use(cors());
 app.use(express.json());
+dotenv.config();
 app.use(express.static(path.join(__dirname, "../public")));
 
 // API Routes
@@ -102,6 +104,12 @@ app.get("/task/:id", (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, "../public/detail.html"));
 });
 
+// API endpoint to get environment info
+app.get('/api/env', (req: Request, res: Response) => {
+  const env = process.env.NODE_ENV || 'development';
+  res.json({ environment: env });
+});
+
 // Database Connection
 export const connectDB = async (
   uri: string = process.env.MONGODB_URI ||
@@ -115,16 +123,5 @@ export const connectDB = async (
     process.exit(1);
   }
 };
-
-// Start Server
-const PORT = process.env.PORT || 3000;
-
-if (require.main === module) {
-  connectDB().then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-  });
-}
 
 export default app;
