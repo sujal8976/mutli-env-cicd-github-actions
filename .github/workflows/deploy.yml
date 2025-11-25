@@ -33,9 +33,6 @@ jobs:
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v0.1.7
-        env:
-          IMAGE_TAG: ${{ inputs.image-tag }}
-          ENVIRONMENT: ${{ inputs.environment }}
         with:
           host: ${{ secrets[inputs.host-secret] }}
           username: ${{ secrets[inputs.user-secret] }}
@@ -45,6 +42,8 @@ jobs:
           script: |
             set -e
             cd ~/tm-app || exit 1
+            export IMAGE_TAG="${{ inputs.image-tag }}"
+            export ENVIRONMENT="${{ inputs.environment }}"
             echo "Deploying $ENVIRONMENT with tag: $IMAGE_TAG"
             export TAG="$IMAGE_TAG"
             docker-compose pull || true
