@@ -36,7 +36,7 @@ jobs:
       - name: Set image tag
         id: tag
         run: |
-          TAG="${GITHUB_REF_NAME}-${GITHUB_SHA:0:8}"
+          TAG="${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${GITHUB_REF_NAME}-${GITHUB_SHA:0:8}"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
@@ -44,6 +44,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          tags: ${{ steps.tag.outputs.tag }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:cache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:cache,mode=max

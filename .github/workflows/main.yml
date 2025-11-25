@@ -59,7 +59,7 @@ jobs:
     with:
       environment: production
       image-tag: ${{ needs.docker-build-push.outputs.image_tag }}
-      host-secret: EC2_HOST
-      user-secret: EC2_USER
-      key-secret: EC2_SSH_KEY
-      port-secret: EC2_SSH_PORT
+      host-secret: EC2_PROD_HOST
+      user-secret: EC2_PROD_USER
+      key-secret: EC2_PROD_SSH_KEY
+      port-secret: EC2_PROD_SSH_PORT
