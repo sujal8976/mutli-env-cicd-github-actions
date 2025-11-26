@@ -44,6 +44,9 @@ jobs:
           fi
 
       - name: Install dependencies
+        env:
+          NODE_ENV: testing
+          NPM_CONFIG_PRODUCTION: false
         run: npm ci
 
       - name: Run tests
