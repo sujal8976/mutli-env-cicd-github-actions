@@ -45,8 +45,10 @@ jobs:
           script: |
             set -e
             cd ~/tm-app || exit 1
+            
             export IMAGE_TAG="${{ steps.tag.outputs.tag }}"
             export ENVIRONMENT="${{ inputs.environment }}"
+
             echo "Deploying $ENVIRONMENT with tag: $IMAGE_TAG"
             export TAG="$IMAGE_TAG"
             docker-compose pull || true
