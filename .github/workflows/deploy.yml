@@ -51,6 +51,6 @@ jobs:
 
             echo "Deploying $ENVIRONMENT with tag: $IMAGE_TAG"
             export TAG="$IMAGE_TAG"
-            docker-compose pull || true
-            docker-compose up -d --remove-orphans
+            docker compose pull || true
+            docker compose up -d --remove-orphans
             docker image prune -f || true
